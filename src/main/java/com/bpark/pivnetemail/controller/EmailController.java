@@ -16,9 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.bpark.pivnetemail.Entity.PivnetProduct;
-import com.bpark.pivnetemail.Entity.PivnetUser;
-import com.bpark.pivnetemail.Entity.PivnetUserProduct;
+import com.bpark.pivnetemail.entity.PivnetProduct;
+import com.bpark.pivnetemail.entity.PivnetUser;
+import com.bpark.pivnetemail.entity.PivnetUserProduct;
 import com.bpark.pivnetemail.service.PivnetService;
 
 @Controller

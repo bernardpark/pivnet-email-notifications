@@ -1,4 +1,4 @@
-package com.bpark.pivnetemail.Entity;
+package com.bpark.pivnetemail.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

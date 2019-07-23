@@ -19,10 +19,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bpark.pivnetemail.Entity.LatestRelease;
-import com.bpark.pivnetemail.Entity.PivnetProduct;
-import com.bpark.pivnetemail.Entity.PivnetUser;
-import com.bpark.pivnetemail.Entity.PivnetUserProduct;
+import com.bpark.pivnetemail.entity.LatestRelease;
+import com.bpark.pivnetemail.entity.PivnetProduct;
+import com.bpark.pivnetemail.entity.PivnetUser;
+import com.bpark.pivnetemail.entity.PivnetUserProduct;
 import com.bpark.pivnetemail.model.Product;
 import com.bpark.pivnetemail.model.Release;
 import com.bpark.pivnetemail.repository.LatestReleaseRepository;

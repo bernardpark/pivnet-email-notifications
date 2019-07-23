@@ -1,4 +1,4 @@
-package com.bpark.pivnetemail.Entity;
+package com.bpark.pivnetemail.entity;
 
 import java.util.HashSet;
 import java.util.Set;
