@@ -14,6 +14,4 @@ public class PivnetemailServices {
 		return pivnetService;
 	}
 
-
-
 }

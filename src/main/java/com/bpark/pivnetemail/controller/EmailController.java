@@ -31,15 +31,67 @@ public class EmailController {
 
 	private String refreshToken = "";
 	private String accessToken = "";
-
+	
 	@GetMapping( "/add-user" )
-	public ResponseEntity<String> addUser( @RequestParam(name="email", required=true) String email ) {
-		return ResponseEntity.status( HttpStatus.OK ).body( pivnetService.addUser( email ) );
+	public ResponseEntity<String> addUser( @RequestParam( name="email", required=true ) String email ) {
+		HttpStatus responseStatus = pivnetService.addUser( email );
+		String responseBody = "";
+		
+		if ( responseStatus.equals( HttpStatus.OK ) || responseStatus == HttpStatus.OK ) {
+			responseBody = "Successfully saved: " + email;
+		}
+		else {
+			responseBody = "Could not save: " + email;
+		}
+		
+		return ResponseEntity.status( responseStatus ).body( responseBody );
+	}
+	
+	@GetMapping( "/check-user" )
+	public ResponseEntity<String> checkUser( @RequestParam( name="email", required=true ) String email ) {
+		HttpStatus responseStatus = pivnetService.checkUser( email );
+		String responseBody = "";
+		
+		if ( responseStatus.equals( HttpStatus.OK ) || responseStatus == HttpStatus.OK ) {
+			responseBody = "Found: " + email;
+		}
+		else {
+			responseBody = "Could not find: " + email;
+		}
+		
+		return ResponseEntity.status( responseStatus ).body( responseBody );
 	}
 
 	@GetMapping( "/add-product" )
-	public ResponseEntity<String> addProduct( @RequestParam(name="email", required=true) String email, @RequestParam(name="product", required=true) String product ) {
-		return ResponseEntity.status( HttpStatus.OK ).body( pivnetService.addProductToUser( email, product ) );
+	public ResponseEntity<String> addProduct( @RequestParam( name="email", required=true ) String email, @RequestParam(name="product", required=true) String product ) {
+		HttpStatus responseStatus = pivnetService.addProductToUser( email, product );
+		String responseBody = "";
+		
+		if ( responseStatus.equals( HttpStatus.OK ) || responseStatus == HttpStatus.OK ) {
+			responseBody = "Successfully saved: " + product + " to user: " + email;
+		}
+		else {
+			responseBody = "Could not save: " + product + " to user: " + email;
+		}
+		return ResponseEntity.status( responseStatus ).body( responseBody );
+	}
+
+	@GetMapping( "/check-product" )
+	public ResponseEntity<String> checkProduct( @RequestParam( name="email", required=true ) String email, @RequestParam(name="product", required=true) String product ) {
+		HttpStatus responseStatus = pivnetService.findProductFromUser( email, product );
+		String responseBody = "";
+		
+		if ( responseStatus.equals( HttpStatus.OK ) || responseStatus == HttpStatus.OK ) {
+			responseBody = "Successfully saved: " + product + " to user: " + email;
+		}
+		else if ( responseStatus.equals( HttpStatus.NOT_FOUND ) || responseStatus == HttpStatus.NOT_FOUND ){
+			responseBody = "Could not find: " + product + " to user: " + email;
+		}
+		else {
+			responseBody = "Something went wrong";
+		}
+		
+		return ResponseEntity.status( responseStatus ).body( responseBody );
 	}
 
 	@GetMapping( "/list-user" )

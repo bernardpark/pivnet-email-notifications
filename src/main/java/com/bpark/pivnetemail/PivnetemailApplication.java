@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PivnetemailApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PivnetemailApplication.class, args);
+		SpringApplication.run( PivnetemailApplication.class, args );
 	}
 
 }

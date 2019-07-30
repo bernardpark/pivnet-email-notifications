@@ -16,8 +16,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import com.bpark.pivnetemail.entity.LatestRelease;
 import com.bpark.pivnetemail.entity.PivnetProduct;
@@ -41,14 +43,34 @@ public class PivnetService {
 	private LatestReleaseRepository latestReleaseRepository;
 
 
-	public String addUser( String email ) {
+	public HttpStatus addUser( String email ) {
 		PivnetUser user = new PivnetUser();
 		user.setEmail( email );
-		pivnetUserRepository.save( user );
-		return "Successfully saved: " + user.toString();
+		try {
+			pivnetUserRepository.save( user );
+			return HttpStatus.OK;
+		}
+		catch ( Exception e ) {
+			return HttpStatus.INTERNAL_SERVER_ERROR;
+		}
 	}
 
-	public String addProductToUser( String email, String slug ) {
+	public HttpStatus checkUser( String email ) {
+		try {
+			List<PivnetUser> userList = pivnetUserRepository.findByEmail( email );
+			if ( !userList.isEmpty() ) {
+				return HttpStatus.OK;
+			}
+			else {
+				return HttpStatus.INTERNAL_SERVER_ERROR;
+			}
+		}
+		catch ( Exception e ) {
+			return HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+	}
+
+	public HttpStatus addProductToUser( String email, String slug ) {
 		Iterable<PivnetUser> users = pivnetUserRepository.findAll();
 		Iterator userIterator = users.iterator();
 		while ( userIterator.hasNext() ) {
@@ -59,39 +81,28 @@ public class PivnetService {
 				product.setSlug( slug );
 				user.getPivnetUserProducts().add( product );
 				pivnetUserRepository.save( user );
-				return "Successfully saved: " + slug + " to user: " + user.toString();
+				return HttpStatus.OK;
 			}
 		}
-		return "Could not save: " + slug + " to user: " + email;
+		return HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 
-	public String listAllUsers() {
-		Iterator<PivnetUser> users = pivnetUserRepository.findAll().iterator();
-		String message = "";
-
-		while ( users.hasNext() ) {
-			PivnetUser user = ( PivnetUser ) users.next();
-			message += "----USER----\n";
-			message += user.getEmail();
-			message += "\n";
-			for ( PivnetUserProduct p : user.getPivnetUserProducts() ) {
-				message += "  " + p.getSlug();
-				message += "\n";
+	public HttpStatus findProductFromUser( String email, String slug ) {
+		Iterable<PivnetUser> users = pivnetUserRepository.findAll();
+		Iterator userIterator = users.iterator();
+		while ( userIterator.hasNext() ) {
+			PivnetUser user = ( PivnetUser ) userIterator.next();
+			Set<PivnetUserProduct> productSet = user.getPivnetUserProducts();
+			if ( user.getEmail().equals( email ) && productSet != null && !productSet.isEmpty() ) {
+				for ( PivnetUserProduct p : productSet ) {
+					if ( p.getSlug().equals( slug ) ) {
+						return HttpStatus.OK;
+					}
+				}
+				return HttpStatus.NOT_FOUND;
 			}
 		}
-
-		return message;
-	}
-
-	public List<PivnetUser> getAllUsers() {
-		Iterator<PivnetUser> users = pivnetUserRepository.findAll().iterator();
-		List<PivnetUser> userList = new ArrayList<PivnetUser>();
-
-		while ( users.hasNext() ) {
-			userList.add( users.next() );
-		}
-
-		return userList;
+		return HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 
 	public String getAccessToken( String refreshToken ) throws MalformedURLException, IOException {
@@ -263,6 +274,35 @@ public class PivnetService {
 		}
 
 		return pivnetProduct;
+	}
+
+	public List<PivnetUser> getAllUsers() {
+		Iterator<PivnetUser> users = pivnetUserRepository.findAll().iterator();
+		List<PivnetUser> userList = new ArrayList<PivnetUser>();
+
+		while ( users.hasNext() ) {
+			userList.add( users.next() );
+		}
+
+		return userList;
+	}
+
+	public String listAllUsers() {
+		Iterator<PivnetUser> users = pivnetUserRepository.findAll().iterator();
+		String message = "";
+
+		while ( users.hasNext() ) {
+			PivnetUser user = ( PivnetUser ) users.next();
+			message += "----USER----\n";
+			message += user.getEmail();
+			message += "\n";
+			for ( PivnetUserProduct p : user.getPivnetUserProducts() ) {
+				message += "  " + p.getSlug();
+				message += "\n";
+			}
+		}
+
+		return message;
 	}
 
 	private void removeReleasesByReleaseType ( List<Release> releases, String releaseType ) {
