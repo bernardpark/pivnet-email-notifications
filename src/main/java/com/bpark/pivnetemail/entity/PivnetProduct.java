@@ -106,6 +106,10 @@ public class PivnetProduct {
 	public void set_links(String _links) {
 		this._links = _links;
 	}
+	public String toStringEmail() {
+		return "Product ID : " + id + "\nProduct Name : " + name + "\nProduct Version : " + version + "\nProduct Release Type : " + release_type
+				+ "\nRelease Date : " + release_date + "\nRelease Notes URL : " + release_notes_url + "\nDescription : \n" + description + "\nLinks : " + _links;
+	}
 	
 	
 }

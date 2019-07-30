@@ -47,16 +47,22 @@ public class EmailController {
 		return ResponseEntity.status( HttpStatus.OK ).body( pivnetService.listAllUsers() );
 	}
 
+	@GetMapping( "/send-new-emails" )
+	public ResponseEntity<String> sendNewEmails() throws MalformedURLException, IOException, ParseException {
+		sendNewEmailsHelper();
+		return ResponseEntity.status( HttpStatus.OK ).body( "Emails sent to all users" );
+	}
+
 	@GetMapping( "/send-emails" )
 	public ResponseEntity<String> sendEmails() throws MalformedURLException, IOException, ParseException {
-		sendReleaseEmails();
+		sendEmailsHelper();
 		return ResponseEntity.status( HttpStatus.OK ).body( "Emails sent to all users" );
 	}
 
 	@GetMapping( "/send-emails-test" )
-	public ResponseEntity<String> sendEmailsTest() throws MalformedURLException, IOException, ParseException {
-		sendTestEmails();
-		return ResponseEntity.status( HttpStatus.OK ).body( "Emails sent to all users" );
+	public ResponseEntity<String> sendEmailsTest( @RequestParam String email ) throws MalformedURLException, IOException, ParseException {
+		sendTestEmailsHelper( email );
+		return ResponseEntity.status( HttpStatus.OK ).body( "Test email sent to user: " + email );
 	}
 
 	@GetMapping( "/add-refreshtoken" )
@@ -100,15 +106,15 @@ public class EmailController {
 		return ResponseEntity.status( HttpStatus.OK ).body( pivnetService.listLatestProductRelease( slug ) );
 	}
 
-	public void sendReleaseEmails() throws MalformedURLException, IOException, ParseException {
+	private void sendNewEmailsHelper() throws MalformedURLException, IOException, ParseException {
 
 		List<PivnetUser> userList = pivnetService.getAllUsers();
 		for ( PivnetUser u : userList ) {
-			SimpleMailMessage email = new SimpleMailMessage();
+			SimpleMailMessage emailMessage = new SimpleMailMessage();
 
-			email.setTo( u.getEmail() );
+			emailMessage.setTo( u.getEmail() );
 
-			email.setSubject( "Email Alert for Pivnet Products" );
+			emailMessage.setSubject( "Email Alert for Pivnet Products" );
 
 			String productReleases = "";
 			for ( PivnetUserProduct p : u.getPivnetUserProducts() ) {
@@ -133,30 +139,65 @@ public class EmailController {
 					updateReleases( slug );
 					updateLatestrelease( slug );
 
-					productReleases += pivnetService.listLatestProductRelease( slug );
-					productReleases += "\n";
+					productReleases += pivnetService.listLatestProductReleaseObject( slug ).toStringEmail();
+					productReleases += "\n\n";
 
 				}
 			}
 
-			email.setText( "Hi there \nYou have an alert for new product updates\n\n" + productReleases + "\n\nThank you");
+			emailMessage.setText( "You have an alert for new product updates\n\n" + productReleases + "\n\nThank you\nPivotal PA Team");
 
-			javaMailSender.send( email );
+			if ( !productReleases.isEmpty() ) {
+				javaMailSender.send( emailMessage );
+			}
+
 		}
 
 	}
 
-	public void sendTestEmails() throws MalformedURLException, IOException, ParseException {
+	private void sendEmailsHelper() throws MalformedURLException, IOException, ParseException {
 
-		SimpleMailMessage email = new SimpleMailMessage();
+		List<PivnetUser> userList = pivnetService.getAllUsers();
+		for ( PivnetUser u : userList ) {
+			SimpleMailMessage emailMessage = new SimpleMailMessage();
 
-		email.setTo( "bpark@pivotal.io" );
+			emailMessage.setTo( u.getEmail() );
 
-		email.setSubject( "Test Email from PivnetAlerts" );
+			emailMessage.setSubject( "Pivnet Products Subscription" );
 
-		email.setText( "This is a test");
+			String productReleases = "";
+			for ( PivnetUserProduct p : u.getPivnetUserProducts() ) {
+				String slug = p.getSlug();
+				pivnetService.updateProductReleases( slug, accessToken );
 
-		javaMailSender.send( email );
+				updateReleases( slug );
+				updateLatestrelease( slug );
+
+				productReleases += pivnetService.listLatestProductReleaseObject( slug ).toStringEmail();
+				productReleases += "\n\n";
+			}
+
+			emailMessage.setText( "Here are the latest products \n\n" + productReleases + "\n\nThank you\nPivotal PA Team");
+
+			if ( !productReleases.isEmpty() ) {
+				javaMailSender.send( emailMessage );
+			}
+
+		}
+
+	}
+
+	public void sendTestEmailsHelper( String email ) throws MalformedURLException, IOException, ParseException {
+
+		SimpleMailMessage emailMessage = new SimpleMailMessage();
+
+		emailMessage.setTo( email );
+
+		emailMessage.setSubject( "Test Email from PivnetAlerts" );
+
+		emailMessage.setText( "This is a test");
+
+		javaMailSender.send( emailMessage );
 	}
 
 
