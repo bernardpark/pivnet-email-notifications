@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import com.bpark.pivnetemail.service.PivnetService;
 
 @Controller
 public class EmailController {
+	
+	Logger logger = LoggerFactory.getLogger( EmailController.class );
 
 	@Autowired
 	PivnetService pivnetService;

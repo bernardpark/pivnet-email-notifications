@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -34,6 +36,8 @@ import com.bpark.pivnetemail.response.AccessToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PivnetService {
+	
+	Logger logger = LoggerFactory.getLogger( PivnetService.class );
 
 	@Autowired 
 	private PivnetUserRepository pivnetUserRepository;
@@ -51,6 +55,7 @@ public class PivnetService {
 			return HttpStatus.OK;
 		}
 		catch ( Exception e ) {
+			logger.error( "Could not add user./n" + e.getStackTrace() );
 			return HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 	}
@@ -62,10 +67,12 @@ public class PivnetService {
 				return HttpStatus.OK;
 			}
 			else {
+				logger.error( "Did not find user " + email );
 				return HttpStatus.INTERNAL_SERVER_ERROR;
 			}
 		}
 		catch ( Exception e ) {
+			logger.error( "Could not find user./n" + e.getStackTrace() );
 			return HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 	}
@@ -84,6 +91,7 @@ public class PivnetService {
 				return HttpStatus.OK;
 			}
 		}
+		logger.error( "Could not add " + slug + " to " + email );
 		return HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 
@@ -99,9 +107,11 @@ public class PivnetService {
 						return HttpStatus.OK;
 					}
 				}
+				logger.error( "Could not find " + slug + " for " + email );
 				return HttpStatus.NOT_FOUND;
 			}
 		}
+		logger.error( "Could not find " + slug + " for " + email );
 		return HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 
